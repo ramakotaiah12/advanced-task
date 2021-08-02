@@ -1,4 +1,5 @@
-﻿using System;
+﻿//Changed File
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,20 +28,63 @@ namespace Talent.Common.Services
 
         public async Task<string> GetFileURL(string id, FileType type)
         {
-            //Your code here;
-            throw new NotImplementedException();
+            string fileURL = "";
+            try
+            {
+                
+                fileURL = await _awsService.GetPresignedUrlObject(id, "advancedtaskaws");
+                return fileURL;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<string> SaveFile(IFormFile file, FileType type)
         {
-            //Your code here;
-            throw new NotImplementedException();
+            var uniqueFileName = "";
+
+            string pathWeb = "";
+
+            pathWeb = _environment.WebRootPath;
+            string pathValue = pathWeb + _tempFolder;
+
+            uniqueFileName = $@"{DateTime.Now.Ticks}_" + file.FileName;
+
+            var path = pathValue + uniqueFileName;
+
+            if (file != null && type == FileType.ProfilePhoto && pathWeb != "")
+
+            {
+
+               
+
+                using (var fileStream = new FileStream(path, FileMode.Create))
+
+                {
+
+                    await file.CopyToAsync(fileStream);
+
+                   if(!await _awsService.PutFileToS3(path, fileStream, "advancedtaskaws"))
+
+                    {
+
+                        path = "";
+
+                    }
+
+                }
+
+            }
+
+            return path;
         }
 
         public async Task<bool> DeleteFile(string id, FileType type)
         {
-            //Your code here;
-            throw new NotImplementedException();
+            await _awsService.RemoveFileFromS3(id, "advancedtaskaws");
+            return true;
         }
 
 

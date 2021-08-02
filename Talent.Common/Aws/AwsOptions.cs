@@ -8,5 +8,7 @@ namespace Talent.Common.Aws
     {
         public string AwsAccessKey { get; set; }
         public string AwsSerectKey { get; set; }
+        public string AwsBucketName { get; set; }
     }
 }
+//Changed File

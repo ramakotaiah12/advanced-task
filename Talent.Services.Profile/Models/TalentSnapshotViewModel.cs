@@ -1,7 +1,9 @@
-﻿using System;
+﻿//Changed File
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Talent.Common.Models;
 
 namespace Talent.Services.Profile.Models
 {
@@ -17,5 +19,6 @@ namespace Talent.Services.Profile.Models
         public string Visa { get; set; }
         public string Level { get; set; }
         public List<string> Skills { get; set; }
+        public LinkedAccounts LinkedAccounts { get; set; }
     }
 }

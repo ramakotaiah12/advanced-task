@@ -1,4 +1,5 @@
-﻿using Talent.Services.Profile.Models.Profile;
+﻿//Changed File
+using Talent.Services.Profile.Models.Profile;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,17 @@ namespace Talent.Services.Profile.Domain.Contracts
 {
     public interface IProfileService
     {
-        bool AddNewLanguage(AddLanguageViewModel language);
+        Task<bool> AddNewLanguage(AddLanguageViewModel language);
+        Task<bool> UpdateLanguage(AddLanguageViewModel language);
+        Task<bool> DeleteLanguage(AddLanguageViewModel language);
+
+        Task<bool> AddNewSkill(AddSkillViewModel skill);
+        Task<bool> UpdateSkill(AddSkillViewModel skill);
+        Task<bool> DeleteSkill(AddSkillViewModel skill);
+
+        Task<bool> AddNewExperience(ExperienceViewModel experience);
+        Task<bool> UpdateExperience(ExperienceViewModel experience);
+        Task<bool> DeleteExperience(ExperienceViewModel experience);
 
         Task<TalentProfileViewModel> GetTalentProfile(String Id);
         Task<IEnumerable<string>> GetTalentSuggestionIds(string employerOrJobId, bool forJob, int position, int increment);

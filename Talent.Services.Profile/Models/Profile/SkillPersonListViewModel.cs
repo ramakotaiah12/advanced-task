@@ -1,4 +1,5 @@
-﻿using System;
+﻿//Changed File
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -17,5 +18,6 @@ namespace Talent.Services.Profile.Models.Profile
         public string Id { get; set; }
         public string Name { get; set; }
         public string Level { get; set; }
+        public string CurrentUserId { get; set; }
     }
 }

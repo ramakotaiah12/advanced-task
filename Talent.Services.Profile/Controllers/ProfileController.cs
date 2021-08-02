@@ -1,4 +1,5 @@
-﻿using Talent.Common.Contracts;
+﻿//Changed File
+using Talent.Common.Contracts;
 using Talent.Common.Models;
 using Talent.Common.Security;
 using Talent.Services.Profile.Models.Profile;
@@ -33,6 +34,7 @@ namespace Talent.Services.Profile.Controllers
         private readonly IUserAppContext _userAppContext;
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<UserLanguage> _userLanguageRepository;
+        private readonly IRepository<UserExperience> _userExperienceRepository;
         private readonly IRepository<UserDescription> _personDescriptionRespository;
         private readonly IRepository<UserAvailability> _userAvailabilityRepository;
         private readonly IRepository<UserSkill> _userSkillRepository;
@@ -51,6 +53,7 @@ namespace Talent.Services.Profile.Controllers
             IFileService documentService,
             IRepository<User> userRepository,
             IRepository<UserLanguage> userLanguageRepository,
+            IRepository<UserExperience> userExperienceRepository,
             IRepository<UserDescription> personDescriptionRepository,
             IRepository<UserAvailability> userAvailabilityRepository,
             IRepository<UserSkill> userSkillRepository,
@@ -71,6 +74,7 @@ namespace Talent.Services.Profile.Controllers
             _userRepository = userRepository;
             _personDescriptionRespository = personDescriptionRepository;
             _userLanguageRepository = userLanguageRepository;
+            _userExperienceRepository = userExperienceRepository;
             _userAvailabilityRepository = userAvailabilityRepository;
             _userSkillRepository = userSkillRepository;
             _userEducationRepository = userEducationRepository;
@@ -143,26 +147,123 @@ namespace Talent.Services.Profile.Controllers
 
         [HttpPost("addLanguage")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
-        public ActionResult AddLanguage([FromBody] AddLanguageViewModel language)
+        public async Task<ActionResult> AddLanguage([FromBody] AddLanguageViewModel language)
         {
-            //Your code here;
-            throw new NotImplementedException();
+            try
+            {
+                if (await _profileService.AddNewLanguage(language))
+                {
+                    
+                    
+                    return Json(new { Success = true, Message = "Language added Successfully" }); ;
+                }
+                return Json(new { Success = false, Message = "Unable to add the language" });
+                
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, Message = "Unable to add the language" });
+            }
+
+
+
+
         }
 
         [HttpPost("updateLanguage")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<ActionResult> UpdateLanguage([FromBody] AddLanguageViewModel language)
         {
-            //Your code here;
-            throw new NotImplementedException();
+            try
+            {
+                if (await _profileService.UpdateLanguage(language))
+                {
+                    return Json(new { Success = true, Message = "Language updated Successfully" });
+                };
+                return Json(new { Success = false, Message="Unable to update the language" });
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, Message = "Unable to update the language" });
+            }
         }
 
         [HttpPost("deleteLanguage")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<ActionResult> DeleteLanguage([FromBody] AddLanguageViewModel language)
         {
-            //Your code here;
-            throw new NotImplementedException();
+            try
+            {
+                if (await _profileService.DeleteLanguage(language))
+                {
+                    return Json(new { Success = true, Message="Language deleted succesfully" });
+                };
+                return Json(new { Success = false, Message = "Unable to delete the language" });
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, Message = "Unable to delete the language" });
+            }
+        }
+        [HttpPost("addExperience")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
+        public async Task<ActionResult> AddExperience([FromBody] ExperienceViewModel experience)
+        {
+            try
+            {
+                if (await _profileService.AddNewExperience(experience))
+                {
+
+
+                    return Json(new { Success = true, Message = "Experience added Successfully" }); ;
+                }
+                return Json(new { Success = false, Message = "Unable to add the Experience" });
+
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, Message = "Unable to add the Experience" });
+            }
+
+
+
+
+        }
+
+        [HttpPost("updateExperience")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
+        public async Task<ActionResult> UpdateExperience([FromBody] ExperienceViewModel experience)
+        {
+            try
+            {
+                if (await _profileService.UpdateExperience(experience))
+                {
+                    return Json(new { Success = true, Message = "Experience updated Successfully" });
+                };
+                return Json(new { Success = false, Message = "Unable to update the experience" });
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, Message = "Unable to update the experience" });
+            }
+        }
+
+        [HttpPost("deleteExperience")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
+        public async Task<ActionResult> deleteExperience([FromBody] ExperienceViewModel experience)
+        {
+            try
+            {
+                if (await _profileService.DeleteExperience(experience))
+                {
+                    return Json(new { Success = true, Message = "experience deleted succesfully" });
+                };
+                return Json(new { Success = false, Message = "Unable to delete the experience" });
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, Message = "Unable to delete the experience" });
+            }
         }
 
         [HttpGet("getSkill")]
@@ -175,26 +276,61 @@ namespace Talent.Services.Profile.Controllers
 
         [HttpPost("addSkill")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
-        public ActionResult AddSkill([FromBody]AddSkillViewModel skill)
+        public async Task<ActionResult> AddSkill([FromBody]AddSkillViewModel skill)
         {
-            //Your code here;
-            throw new NotImplementedException();
+            try
+            {
+                if (await _profileService.AddNewSkill(skill))
+                {
+
+
+                    return Json(new { Success = true, Message = "Skill added Successfully" }); ;
+                }
+                return Json(new { Success = false, Message = "Unable to add the Skill" });
+
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, Message = "Unable to add the skill" });
+            }
+
+
         }
 
         [HttpPost("updateSkill")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<IActionResult> UpdateSkill([FromBody]AddSkillViewModel skill)
         {
-            //Your code here;
-            throw new NotImplementedException();
+            try
+            {
+                if (await _profileService.UpdateSkill(skill))
+                {
+                    return Json(new { Success = true, Message = "Skill updated Successfully" });
+                };
+                return Json(new { Success = false, Message = "Unable to update the skill" });
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, Message = "Unable to update the skill" });
+            }
         }
 
         [HttpPost("deleteSkill")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<IActionResult> DeleteSkill([FromBody]AddSkillViewModel skill)
         {
-            //Your code here;
-            throw new NotImplementedException();
+            try
+            {
+                if (await _profileService.DeleteSkill(skill))
+                {
+                    return Json(new { Success = true, Message = "Skill deleted succesfully" });
+                };
+                return Json(new { Success = false, Message = "Unable to delete the skill" });
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, Message = "Unable to delete the skill" });
+            }
         }
 
         [HttpGet("getCertification")]
@@ -240,10 +376,17 @@ namespace Talent.Services.Profile.Controllers
 
         [HttpPost("updateProfilePhoto")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
-        public async Task<ActionResult> UpdateProfilePhoto()
+        public async Task<ActionResult> UpdateProfilePhoto([FromForm] IFormFile talentPhoto)
         {
-            //Your code here;
-            throw new NotImplementedException();
+            try
+            {
+                await _profileService.UpdateTalentPhoto(_userAppContext.CurrentUserId, talentPhoto);
+                return Json(new { Success = true, Message = "Profile photo successfully updated" });
+            }
+            catch
+            {
+                return Json(new { Success = false, Message = "Error while updating user photo" });
+            }
         }
 
         [HttpPost("updateTalentCV")]
@@ -412,36 +555,51 @@ namespace Talent.Services.Profile.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent, employer, recruiter")]
         public async Task<IActionResult> GetTalentProfile(String id = "")
         {
-            String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
-            var userProfile = await _profileService.GetTalentProfile(talentId);
+            try
+            {
+                String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
+                var userProfile = await _profileService.GetTalentProfile(talentId);
+
+                return Json(new { Success = true, data = userProfile });
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, e.Message });
+            }
           
-            return Json(new { Success = true, data = userProfile });
+          
         }
 
         [HttpPost("updateTalentProfile")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<IActionResult> UpdateTalentProfile([FromBody]TalentProfileViewModel profile)
         {
+
             if (ModelState.IsValid)
             {
                 if (await _profileService.UpdateTalentProfile(profile, _userAppContext.CurrentUserId))
                 {
+
                     return Json(new { Success = true });
                 }
             }
-            return Json(new { Success = false });
+              return Json(new { Success = false });
+            
+            
         }
 
         [HttpGet("getTalent")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "recruiter, employer")]
-        public async Task<IActionResult> GetTalentSnapshots(FeedIncrementModel feed)
+        public async Task<IActionResult> GetTalentSnapshots([FromQuery] FeedIncrementModel feed)
         {
             try
             {
-                var result = (await _profileService.GetTalentSnapshotList(_userAppContext.CurrentUserId, false, feed.Position, feed.Number)).ToList();
+                var id = _userAppContext.CurrentUserId;
+               var result = await _profileService.GetTalentSnapshotList(id,true, feed.Position, feed.Number);
 
-                // Dummy talent to fill out the list once we run out of data
-                //if (result.Count == 0)
+
+                //// Dummy talent to fill out the list once we run out of data
+                //if (result.ToList().Count == 0)
                 //{
                 //    result.Add(
                 //            new Models.TalentSnapshotViewModel

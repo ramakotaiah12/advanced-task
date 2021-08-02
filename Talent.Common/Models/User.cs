@@ -1,4 +1,5 @@
-﻿using Talent.Common.Contracts;
+﻿//Changed File
+using Talent.Common.Contracts;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Talent.Common.Models
 {
+    [BsonIgnoreExtraElements]
     public class User : IMongoCommon
     {
         public Guid UId { get; set; }
