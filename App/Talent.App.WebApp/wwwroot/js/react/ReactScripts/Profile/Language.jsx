@@ -1,4 +1,4 @@
-﻿/* Language section 
+/* Language section 
 chnaged file */
 import React from "react";
 import Cookies from "js-cookie";
@@ -32,16 +32,20 @@ export default class Language extends React.Component {
 	onLanguageLevelChange(e) {
 		this.setState({ languageLevel: e.target.value });
 	}
-	openUpdate(id) {
+	openUpdate(language) {
 		this.setState({
 			showEditSection: false,
 			showUpdateSection: true,
-			updateId: id,
+			updateId: language.id,
+			languageName: language.name,
+			languageLevel: language.level,
 		});
 	}
 	closeUpdate() {
 		this.setState({
 			showUpdateSection: false,
+			languageName: "",
+			languageLevel: "",
 		});
 	}
 	openAdd() {
@@ -53,6 +57,8 @@ export default class Language extends React.Component {
 	closeAdd() {
 		this.setState({
 			showEditSection: false,
+			languageName: "",
+			languageLevel: "",
 		});
 	}
 	updateLanguage(language) {
@@ -61,7 +67,7 @@ export default class Language extends React.Component {
 		var cookies = Cookies.get("talentAuthToken");
 
 		$.ajax({
-			url: "http://localhost:60290/profile/profile/UpdateLanguage",
+			url: "https://profile-advanced-task.azurewebsites.net/profile/profile/UpdateLanguage",
 			headers: {
 				Authorization: "Bearer " + cookies,
 				"Content-Type": "application/json",
@@ -70,11 +76,11 @@ export default class Language extends React.Component {
 			data: JSON.stringify(language),
 			success: function (res) {
 				if (res.success == true) {
-					TalentUtil.notification.show(`${res.message}`, "success", null, null);
+					this.props.updateProfileData();
 				} else {
 					TalentUtil.notification.show(`${res.message}`, "error", null, null);
 				}
-				window.location.reload();
+				this.closeUpdate();
 			}.bind(this),
 			error: function (res, a, b) {
 				console.log(res);
@@ -88,7 +94,7 @@ export default class Language extends React.Component {
 		var cookies = Cookies.get("talentAuthToken");
 
 		$.ajax({
-			url: "http://localhost:60290/profile/profile/DeleteLanguage",
+			url: "https://profile-advanced-task.azurewebsites.net/profile/profile/DeleteLanguage",
 			headers: {
 				Authorization: "Bearer " + cookies,
 				"Content-Type": "application/json",
@@ -97,11 +103,10 @@ export default class Language extends React.Component {
 			data: JSON.stringify(language),
 			success: function (res) {
 				if (res.success == true) {
-					TalentUtil.notification.show(`${res.message}`, "success", null, null);
+					this.props.updateProfileData();
 				} else {
 					TalentUtil.notification.show(`${res.message}`, "error", null, null);
 				}
-				window.location.reload();
 			}.bind(this),
 			error: function (res, a, b) {
 				console.log(res);
@@ -116,9 +121,17 @@ export default class Language extends React.Component {
 			name: this.state.languageName,
 			level: this.state.languageLevel,
 		};
+		if (language.name.length === 0 && language.level.length === 0) {
+			return TalentUtil.notification.show(
+				`Please enter language name and level`,
+				"error",
+				null,
+				null
+			);
+		}
 
 		$.ajax({
-			url: "http://localhost:60290/profile/profile/AddLanguage",
+			url: "https://profile-advanced-task.azurewebsites.net/profile/profile/AddLanguage",
 			headers: {
 				Authorization: "Bearer " + cookies,
 				"Content-Type": "application/json",
@@ -127,12 +140,11 @@ export default class Language extends React.Component {
 			data: JSON.stringify(language),
 			success: function (res) {
 				if (res.success == true) {
-					TalentUtil.notification.show(`${res.message}`, "success", null, null);
+					this.props.updateProfileData();
 				} else {
 					TalentUtil.notification.show(`${res.message}`, "error", null, null);
 				}
 				this.closeAdd();
-				window.location.reload();
 			}.bind(this),
 			error: function (res, a, b) {
 				console.log(res);
@@ -217,7 +229,7 @@ export default class Language extends React.Component {
 											<Input
 												autoFocus={true}
 												placeholder='Add Language'
-												defaultValue={language.name}
+												defaultValue={this.state.languageName}
 												name='name'
 												onChange={this.onLanguageNameChange}
 											/>
@@ -225,9 +237,10 @@ export default class Language extends React.Component {
 										<Table.Cell>
 											<select
 												name='level'
-												value={language.level}
+												value={this.state.languageLevel}
 												onChange={this.onLanguageLevelChange}
 											>
+												<option value=''>Change Level</option>
 												<option value='Basic'>Basic</option>
 												<option value='Conversational'>Conversational</option>
 												<option value='Fluent'>Fluent</option>
@@ -257,7 +270,7 @@ export default class Language extends React.Component {
 										<Table.Cell textAlign='right'>
 											<Icon
 												name='pencil alternate'
-												onClick={() => this.openUpdate(language.id)}
+												onClick={() => this.openUpdate(language)}
 											></Icon>
 
 											<Icon
