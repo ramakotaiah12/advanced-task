@@ -1,4 +1,4 @@
-﻿/* Social media JSX 
+/* Social media JSX 
 chnaged file*/
 import React from "react";
 import { ChildSingleInput } from "../Form/SingleInput.jsx";
@@ -105,16 +105,29 @@ export default class SocialMediaLinkedAccount extends React.Component {
 				<div className='ui sixteen wide column'>
 					<React.Fragment>
 						<Button
+							target='_blank'
+							href={
+								this.props.linkedAccounts.linkedIn.length === 0
+									? "#"
+									: this.props.linkedAccounts.linkedIn
+							}
+							type='button'
 							color='linkedin'
 							disabled={this.props.linkedAccounts.linkedIn.length === 0}
-							onClick={this.openEdit}
 						>
 							<Icon name='linkedin' /> LinkedIn
 						</Button>
+
 						<Button
+							target='_blank'
+							href={
+								this.props.linkedAccounts.github.length === 0
+									? "#"
+									: this.props.linkedAccounts.github
+							}
+							type='button'
 							color='black'
 							disabled={this.props.linkedAccounts.github.length === 0}
-							onClick={this.openEdit}
 						>
 							<Icon name='github' /> GitHub
 						</Button>
