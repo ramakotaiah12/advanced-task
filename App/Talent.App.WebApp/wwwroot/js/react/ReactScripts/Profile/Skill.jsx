@@ -1,4 +1,4 @@
-﻿/* Skill section 
+/* Skill section 
 chnaged file*/
 import React from "react";
 import Cookies from "js-cookie";
@@ -34,16 +34,28 @@ export default class Skill extends React.Component {
 			skill: data,
 		});
 	}
-	openUpdate(id) {
+	openUpdate(skill) {
+		const data = Object.assign({}, skill);
 		this.setState({
 			showAddSection: false,
 			showUpdateSection: true,
-			updateId: id,
+			updateId: skill.id,
+			skill: data,
 		});
 	}
 	closeUpdate() {
+		const data = Object.assign(
+			{},
+			{
+				id: "",
+				name: "",
+				level: "",
+				currentUserId: "",
+			}
+		);
 		this.setState({
 			showUpdateSection: false,
+			skill: data,
 		});
 	}
 	openAdd() {
@@ -53,8 +65,18 @@ export default class Skill extends React.Component {
 		});
 	}
 	closeAdd() {
+		const data = Object.assign(
+			{},
+			{
+				id: "",
+				name: "",
+				level: "",
+				currentUserId: "",
+			}
+		);
 		this.setState({
 			showAddSection: false,
+			skill: data,
 		});
 	}
 	addSkill() {
@@ -63,8 +85,16 @@ export default class Skill extends React.Component {
 			name: this.state.skill.name,
 			level: this.state.skill.level,
 		};
+		if (skill.name.length === 0 && skill.level.length === 0) {
+			return TalentUtil.notification.show(
+				`Please enter skill name and level`,
+				"error",
+				null,
+				null
+			);
+		}
 		$.ajax({
-			url: "http://localhost:60290/profile/profile/AddSkill",
+			url: "https://profile-advanced-task.azurewebsites.net/profile/profile/AddSkill",
 			headers: {
 				Authorization: "Bearer " + cookies,
 				"Content-Type": "application/json",
@@ -73,12 +103,11 @@ export default class Skill extends React.Component {
 			data: JSON.stringify(skill),
 			success: function (res) {
 				if (res.success == true) {
-					TalentUtil.notification.show(`${res.message}`, "success", null, null);
+					this.props.updateProfileData();
 				} else {
 					TalentUtil.notification.show(`${res.message}`, "error", null, null);
 				}
 				this.closeAdd();
-				window.location.reload();
 			}.bind(this),
 			error: function (res, a, b) {
 				console.log(res);
@@ -98,7 +127,7 @@ export default class Skill extends React.Component {
 		var cookies = Cookies.get("talentAuthToken");
 
 		$.ajax({
-			url: "http://localhost:60290/profile/profile/UpdateSkill",
+			url: "https://profile-advanced-task.azurewebsites.net/profile/profile/UpdateSkill",
 			headers: {
 				Authorization: "Bearer " + cookies,
 				"Content-Type": "application/json",
@@ -107,11 +136,11 @@ export default class Skill extends React.Component {
 			data: JSON.stringify(skill),
 			success: function (res) {
 				if (res.success == true) {
-					TalentUtil.notification.show(`${res.message}`, "success", null, null);
+					this.props.updateProfileData();
 				} else {
 					TalentUtil.notification.show(`${res.message}`, "error", null, null);
 				}
-				window.location.reload();
+				this.closeUpdate();
 			}.bind(this),
 			error: function (res, a, b) {
 				console.log(res);
@@ -124,7 +153,7 @@ export default class Skill extends React.Component {
 		var cookies = Cookies.get("talentAuthToken");
 
 		$.ajax({
-			url: "http://localhost:60290/profile/profile/DeleteSkill",
+			url: "https://profile-advanced-task.azurewebsites.net/profile/profile/DeleteSkill",
 			headers: {
 				Authorization: "Bearer " + cookies,
 				"Content-Type": "application/json",
@@ -133,11 +162,10 @@ export default class Skill extends React.Component {
 			data: JSON.stringify(skill),
 			success: function (res) {
 				if (res.success == true) {
-					TalentUtil.notification.show(`${res.message}`, "success", null, null);
+					this.props.updateProfileData();
 				} else {
 					TalentUtil.notification.show(`${res.message}`, "error", null, null);
 				}
-				window.location.reload();
 			}.bind(this),
 			error: function (res, a, b) {
 				console.log(res);
@@ -218,7 +246,7 @@ export default class Skill extends React.Component {
 											<Input
 												autoFocus={true}
 												placeholder='Add Skill'
-												defaultValue={skill.name}
+												defaultValue={this.state.skill.name}
 												name='name'
 												onChange={this.handleChange}
 											/>
@@ -226,7 +254,7 @@ export default class Skill extends React.Component {
 										<Table.Cell>
 											<select
 												name='level'
-												defaultValue={skill.level}
+												defaultValue={this.state.skill.level}
 												onChange={this.handleChange}
 											>
 												<option value='Beginner'>Beginner</option>
@@ -260,7 +288,7 @@ export default class Skill extends React.Component {
 										<Table.Cell textAlign='right'>
 											<Icon
 												name='pencil alternate'
-												onClick={() => this.openUpdate(skill.id)}
+												onClick={() => this.openUpdate(skill)}
 											></Icon>
 											<Icon
 												name='cancel'
