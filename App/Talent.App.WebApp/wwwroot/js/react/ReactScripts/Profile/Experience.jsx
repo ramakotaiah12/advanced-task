@@ -1,4 +1,4 @@
-﻿//chnaged file
+//chnaged file --
 /* Experience section */
 import React from "react";
 import Cookies from "js-cookie";
@@ -33,11 +33,18 @@ export default class Experience extends React.Component {
 	}
 	updateExperience() {
 		const data = Object.assign({}, this.state.experience);
-		console.log(data);
+		if (data.start >= data.end) {
+			return TalentUtil.notification.show(
+				`Please check start and end dates`,
+				"error",
+				null,
+				null
+			);
+		}
 		var cookies = Cookies.get("talentAuthToken");
 
 		$.ajax({
-			url: "http://localhost:60290/profile/profile/UpdateExperience",
+			url: "https://profile-advanced-task.azurewebsites.net/profile/profile/UpdateExperience",
 			headers: {
 				Authorization: "Bearer " + cookies,
 				"Content-Type": "application/json",
@@ -46,11 +53,11 @@ export default class Experience extends React.Component {
 			data: JSON.stringify(data),
 			success: function (res) {
 				if (res.success == true) {
-					TalentUtil.notification.show(`${res.message}`, "success", null, null);
+					this.props.updateProfileData();
 				} else {
 					TalentUtil.notification.show(`${res.message}`, "error", null, null);
 				}
-				window.location.reload();
+				this.closeUpdate();
 			}.bind(this),
 			error: function (res, a, b) {
 				console.log(res);
@@ -69,15 +76,28 @@ export default class Experience extends React.Component {
 		});
 	}
 	closeUpdate() {
+		const data = Object.assign(
+			{},
+			{
+				id: "",
+				userId: "",
+				company: "",
+				position: "",
+				responsibilities: "",
+				start: "",
+				end: "",
+			}
+		);
 		this.setState({
 			showUpdateSection: false,
+			experience: data,
 		});
 	}
 	deleteExperience(experience) {
 		var cookies = Cookies.get("talentAuthToken");
 
 		$.ajax({
-			url: "http://localhost:60290/profile/profile/DeleteExperience",
+			url: "https://profile-advanced-task.azurewebsites.net/profile/profile/DeleteExperience",
 			headers: {
 				Authorization: "Bearer " + cookies,
 				"Content-Type": "application/json",
@@ -86,11 +106,10 @@ export default class Experience extends React.Component {
 			data: JSON.stringify(experience),
 			success: function (res) {
 				if (res.success == true) {
-					TalentUtil.notification.show(`${res.message}`, "success", null, null);
+					this.props.updateProfileData();
 				} else {
 					TalentUtil.notification.show(`${res.message}`, "error", null, null);
 				}
-				window.location.reload();
 			}.bind(this),
 			error: function (res, a, b) {
 				console.log(res);
@@ -100,9 +119,17 @@ export default class Experience extends React.Component {
 		});
 	}
 	addExperience() {
+		if (this.state.experience.start >= this.state.experience.end) {
+			return TalentUtil.notification.show(
+				`Please check start and end dates`,
+				"error",
+				null,
+				null
+			);
+		}
 		var cookies = Cookies.get("talentAuthToken");
 		$.ajax({
-			url: "http://localhost:60290/profile/profile/AddExperience",
+			url: "https://profile-advanced-task.azurewebsites.net/profile/profile/AddExperience",
 			headers: {
 				Authorization: "Bearer " + cookies,
 				"Content-Type": "application/json",
@@ -110,14 +137,12 @@ export default class Experience extends React.Component {
 			type: "POST",
 			data: JSON.stringify(this.state.experience),
 			success: function (res) {
-				console.log(res);
 				if (res.success == true) {
-					TalentUtil.notification.show(`${res.message}`, "success", null, null);
+					this.props.updateProfileData();
 				} else {
 					TalentUtil.notification.show(`${res.message}`, "error", null, null);
 				}
 				this.closeAdd();
-				window.location.reload();
 			}.bind(this),
 			error: function (res, a, b) {
 				console.log(res);
@@ -135,17 +160,40 @@ export default class Experience extends React.Component {
 		});
 	}
 	openAdd() {
-		this.setState({
-			showAddSection: true,
-			showUpdateSection: false,
-		});
+		this.setState(
+			{
+				showAddSection: true,
+			},
+			this.closeUpdate
+		);
 	}
 	closeAdd() {
+		const data = Object.assign(
+			{},
+			{
+				id: "",
+				userId: "",
+				company: "",
+				position: "",
+				responsibilities: "",
+				start: "",
+				end: "",
+			}
+		);
 		this.setState({
 			showAddSection: false,
+			experience: data,
 		});
 	}
 	renderAdd() {
+		var now =
+			this.state.experience.start === ""
+				? new Date("1970-1-1")
+				: new Date(this.state.experience.start);
+
+		var todayUTC = new Date(
+			Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+		);
 		return (
 			<div className='row'>
 				<div className='ui sixteen wide column'>
@@ -193,6 +241,7 @@ export default class Experience extends React.Component {
 							<Grid.Column>
 								<label>End Date</label>
 								<SingleInput
+									min={todayUTC.toISOString().slice(0, 10)}
 									isError={false}
 									inputType='date'
 									name='end'
@@ -243,9 +292,21 @@ export default class Experience extends React.Component {
 		);
 	}
 	renderDisplay() {
+		var now =
+			this.state.experience.start === ""
+				? new Date("1970-1-1")
+				: new Date(this.state.experience.start);
+		var todayUTC = new Date(
+			Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+		);
+		console.log(todayUTC);
 		let format = (d, a = d.toString().split` `) =>
 			a[2] + "-" + a[1] + "-" + a[3];
 		const data = Object.assign({}, this.state.experience);
+		var now = data.start === "" ? new Date("1970-1-1") : new Date(data.start);
+		var todayUTC = new Date(
+			Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+		);
 		return (
 			<div className='row'>
 				<div className='ui sixteen wide column'>
@@ -323,6 +384,7 @@ export default class Experience extends React.Component {
 																isError={false}
 																inputType='date'
 																name='end'
+																min={todayUTC.toISOString().slice(0, 10)}
 																content={data.end.split("T")[0]}
 																controlFunc={this.handleChange}
 																maxLength={80}
