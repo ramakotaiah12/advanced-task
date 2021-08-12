@@ -1,4 +1,4 @@
-﻿//chnaged file
+//chnaged file
 import React from "react";
 import { SingleInput } from "../Form/SingleInput.jsx";
 import { Dropdown, Grid, Label } from "semantic-ui-react";
@@ -12,35 +12,66 @@ export default class VisaStatus extends React.Component {
 			visaStatus: status,
 			visaExpiryDate: expiryDate,
 		};
-		this.handleVisaExpiryDateChange =
-			this.handleVisaExpiryDateChange.bind(this);
-		this.handleVisaStatusChange = this.handleVisaStatusChange.bind(this);
+		this.handleStatusChange = this.handleStatusChange.bind(this);
+		this.handleDateChange = this.handleDateChange.bind(this);
+		this.submitStatus = this.submitStatus.bind(this);
 		this.saveVisaDetails = this.saveVisaDetails.bind(this);
 	}
 	saveVisaDetails() {
-		this.props.saveProfileData({ visaExpiryDate: this.state.visaExpiryDate });
-	}
-	handleVisaExpiryDateChange(e) {
-		const visaExpiryDateDetail = e.target.value;
-		this.setState({
-			visaExpiryDate: visaExpiryDateDetail,
-		});
-	}
-	handleVisaStatusChange(e, d) {
-		const visaDetails = d.value;
-		this.setState({
-			visaStatus: visaDetails,
-		});
-		if (visaDetails === "Permanent Resident" || visaDetails === "Citizen") {
+		if (this.state.visaExpiryDate === "") {
+			return TalentUtil.notification.show(
+				"Please Enter visa expiry date",
+				"error",
+				null,
+				null
+			);
+		}
+		if (this.state.visaStatus === "" || this.props.visaExpiryDate === "") {
 			this.props.saveProfileData({
-				visaStatus: visaDetails,
+				visaStatus: this.props.visaStatus,
+				visaExpiryDate: this.props.visaExpiryDate,
+			});
+		} else {
+			this.props.saveProfileData({
+				visaStatus: this.state.visaStatus,
+				visaExpiryDate: this.state.visaExpiryDate,
+			});
+		}
+	}
+	submitStatus() {
+		if (
+			this.state.visaStatus === "Citizen" ||
+			this.state.visaStatus === "Permanent Resident"
+		) {
+			this.props.saveProfileData({
+				visaStatus: this.state.visaStatus,
 				visaExpiryDate: "",
 			});
 		} else {
-			this.props.updateProfileData({ visaStatus: visaDetails });
+			this.props.updateProfileData({
+				visaStatus: this.state.visaStatus,
+			});
 		}
 	}
+	handleStatusChange(e, d) {
+		this.setState(
+			{
+				visaStatus: d.value,
+				visaExpiryDate: "",
+			},
+			this.submitStatus
+		);
+	}
+	handleDateChange(e) {
+		this.setState({
+			visaExpiryDate: e.target.value,
+		});
+	}
 	render() {
+		var now = new Date();
+		var todayUTC = new Date(
+			Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+		);
 		const visaOptions = [
 			{ key: "Citizen", text: "Citizen", value: "Citizen" },
 			{
@@ -57,7 +88,14 @@ export default class VisaStatus extends React.Component {
 			this.state.visaExpiryDate === ""
 				? this.props.visaExpiryDate.split("T")[0]
 				: this.state.visaExpiryDate.split("T")[0];
-
+		const dateString =
+			this.state.visaExpiryDate === "" && this.props.visaExpiryDate === ""
+				? ""
+				: date;
+		const status =
+			this.state.visaStatus === ""
+				? this.props.visaStatus
+				: this.state.visaStatus;
 		return (
 			<Grid columns='equal'>
 				<Grid.Row>
@@ -66,14 +104,16 @@ export default class VisaStatus extends React.Component {
 						<Dropdown
 							name='visaStatus'
 							placeholder='Visa Status'
-							value={this.props.visaStatus}
-							onChange={this.handleVisaStatusChange}
+							value={status}
+							onChange={this.handleStatusChange}
 							search
 							selection
 							options={visaOptions}
 						></Dropdown>
 					</Grid.Column>
-					{this.props.visaStatus === "Permanent Resident" ||
+					{this.state.visaStatus === "Permanent Resident" ||
+					this.state.visaStatus === "Citizen" ||
+					this.props.visaStatus === "Permanent Resident" ||
 					this.props.visaStatus === "Citizen" ||
 					this.props.visaStatus === null ? (
 						""
@@ -86,9 +126,10 @@ export default class VisaStatus extends React.Component {
 										isError={false}
 										inputType='date'
 										name='visaExpiryDate'
-										content={date}
-										controlFunc={this.handleVisaExpiryDateChange}
+										content={dateString}
+										controlFunc={this.handleDateChange}
 										maxLength={80}
+										min={todayUTC.toISOString().slice(0, 10)}
 										errorMessage='Please enter visa expiry date'
 									/>
 								</Grid.Column>
