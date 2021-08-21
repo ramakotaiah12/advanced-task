@@ -1,4 +1,4 @@
-﻿//chnaged file
+//chnaged file
 import React from "react";
 import ReactDOM from "react-dom";
 import Cookies from "js-cookie";
@@ -19,7 +19,7 @@ export default class TalentFeed extends React.Component {
 		this.state = {
 			employerData: {},
 			loadNumber: 5,
-			loadPosition: 500,
+			loadPosition: 0,
 			feedData: [],
 			watchlist: [],
 			loaderData: loader,
@@ -29,10 +29,40 @@ export default class TalentFeed extends React.Component {
 
 		this.init = this.init.bind(this);
 		this.loadData = this.loadData.bind(this);
-		(this.talentData = this.talentData.bind(this)),
-			(this.updateWithoutSave = this.updateWithoutSave.bind(this));
+		this.talentData = this.talentData.bind(this);
+		this.updateWithoutSave = this.updateWithoutSave.bind(this);
+		this.handleScroll = this.handleScroll.bind(this);
 	}
 
+	handleScroll(e) {
+		const windowHeight = window.innerHeight
+			? window.innerHeight
+			: document.documentElement.offsetHeight;
+		const { body } = document;
+		const html = document.documentElement;
+		const docHeight = Math.max(
+			body.scrollHeight,
+			body.offsetHeight,
+			html.clientHeight,
+			html.scrollHeight,
+			html.offsetHeight
+		);
+		const windowBottom = Math.round(windowHeight + window.pageYOffset);
+
+		const difference = docHeight - windowBottom;
+		const additional = difference >= 1 && difference <= 2 ? difference : 0;
+
+		if (windowBottom + additional >= docHeight) {
+			console.log(true);
+			const position = this.state.loadPosition + 5;
+			this.setState(
+				{
+					loadPosition: position,
+				},
+				() => this.talentData()
+			);
+		}
+	}
 	init() {
 		let loaderData = TalentUtil.deepCopy(this.state.loaderData);
 		loaderData.isLoading = false;
@@ -42,7 +72,7 @@ export default class TalentFeed extends React.Component {
 	loadData() {
 		var cookies = Cookies.get("talentAuthToken");
 		$.ajax({
-			url: "http://localhost:60290/profile/profile/getEmployerProfile",
+			url: "https://profile-advanced-task.azurewebsites.net/profile/profile/getEmployerProfile",
 			headers: {
 				Authorization: "Bearer " + cookies,
 				"Content-Type": "application/json",
@@ -65,7 +95,7 @@ export default class TalentFeed extends React.Component {
 	talentData() {
 		var cookies = Cookies.get("talentAuthToken");
 		$.ajax({
-			url: "http://localhost:60290/profile/profile/getTalent",
+			url: "https://profile-advanced-task.azurewebsites.net/profile/profile/getTalent",
 			headers: {
 				Authorization: "Bearer " + cookies,
 				"Content-Type": "application/json",
@@ -80,9 +110,13 @@ export default class TalentFeed extends React.Component {
 			dataType: "json",
 			success: function (res) {
 				if (res.success) {
+					console.log(this.state.loadPosition);
+					var newArray = [...this.state.feedData, ...res.data];
+					console.log(newArray);
 					this.setState({
-						feedData: res.data,
+						feedData: newArray,
 					});
+					window.removeEventListener("scroll", this.handleScroll, false);
 				}
 			}.bind(this),
 			error: function (res) {
@@ -98,7 +132,7 @@ export default class TalentFeed extends React.Component {
 	}
 
 	componentDidMount() {
-		//window.addEventListener('scroll', this.handleScroll);
+		window.addEventListener("scroll", this.handleScroll, true);
 		this.init();
 		this.talentData();
 	}
@@ -106,7 +140,7 @@ export default class TalentFeed extends React.Component {
 	render() {
 		return (
 			<BodyWrapper reload={this.init} loaderData={this.state.loaderData}>
-				<div className='ui container'>
+				<div className='ui container' onScroll={(e) => this.handleScroll(e)}>
 					<Grid>
 						<Grid.Row>
 							<Grid.Column width={4}>
@@ -119,9 +153,7 @@ export default class TalentFeed extends React.Component {
 								)}
 							</Grid.Column>
 							<Grid.Column width={8}>
-								<Segment style={{ overflow: "auto", maxHeight: 580 }} raised>
-									<TalentCard profiles={this.state.feedData} />
-								</Segment>
+								<TalentCard profiles={this.state.feedData} />
 							</Grid.Column>
 							<Grid.Column width={4}>
 								<FollowingSuggestion profiles={this.state.feedData} />
